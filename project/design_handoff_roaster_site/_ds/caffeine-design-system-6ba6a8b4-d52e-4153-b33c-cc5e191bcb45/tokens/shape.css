@@ -1,0 +1,10 @@
+:root{
+/* the template is squared-off: rectangles, hairline outlines, no soft corners */
+--radius-none:0px;--radius-xs:2px;--radius-sm:4px;--radius-full:9999px;
+--border-width:1px;--border-width-thick:2px;--photo-mat:12px;
+--shadow-photo:0 18px 40px rgba(27,17,7,.28);
+--shadow-card:0 10px 24px rgba(27,17,7,.14);
+--shadow-none:none;
+--offset-frame:14px; /* solid block offset behind product/photo cards */
+--tilt:-4deg;/* @kind other */
+}
