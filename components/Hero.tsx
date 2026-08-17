@@ -21,13 +21,31 @@ export function Hero() {
   const copyRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const durationRef = useRef(0);
+  const progressRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+
+  // scroll scrubs the video: static first frame until the user scrolls, then
+  // currentTime tracks scroll depth directly (forward and backward) instead of playing on a timer
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onLoaded = () => {
+      durationRef.current = video.duration || 0;
+      video.currentTime = 0;
+    };
+    video.addEventListener("loadedmetadata", onLoaded);
+    // the browser can start loading (and finish decoding metadata for) the video from the
+    // raw SSR'd <video src> before this effect attaches its listener, so the event fires
+    // and is missed on fast loads — catch that race by checking readyState directly too
+    if (video.readyState >= 1) onLoaded();
+    return () => video.removeEventListener("loadedmetadata", onLoaded);
+  }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      const wrap = wrapRef.current;
-      if (!wrap) return;
-      const span = wrap.offsetHeight - window.innerHeight;
-      const p = Math.max(0, Math.min(1, -wrap.getBoundingClientRect().top / (span || 1)));
+    const applyFrame = () => {
+      rafRef.current = null;
+      const p = progressRef.current;
       const end = HERO_FINAL_SCALE;
       const s = 1 - (1 - end) * p;
       const f = frameRef.current;
@@ -43,14 +61,33 @@ export function Hero() {
       }
       const sc = scrimRef.current;
       if (sc) sc.style.opacity = String(1 - 0.55 * p);
+      const video = videoRef.current;
+      const duration = durationRef.current;
+      if (video && duration > 0) {
+        const target = p * duration;
+        if (Math.abs(video.currentTime - target) > 0.01) {
+          video.currentTime = target;
+        }
+      }
+    };
+
+    const onScroll = () => {
+      const wrap = wrapRef.current;
+      if (!wrap) return;
+      const span = wrap.offsetHeight - window.innerHeight;
+      const p = Math.max(0, Math.min(1, -wrap.getBoundingClientRect().top / (span || 1)));
+      progressRef.current = p;
+      if (rafRef.current == null) {
+        rafRef.current = requestAnimationFrame(applyFrame);
+      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     onScroll();
-    videoRef.current?.play().catch(() => {});
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -69,10 +106,9 @@ export function Hero() {
           <div style={{ position: "relative", flex: 1, overflow: "hidden", background: "var(--espresso-800)" }}>
             <video
               ref={videoRef}
-              autoPlay
               muted
-              loop
               playsInline
+              preload="auto"
               src="/uploads/kling_20251029_Image_to_Video_The_coffee_5026_0.mp4"
               style={{
                 position: "absolute",

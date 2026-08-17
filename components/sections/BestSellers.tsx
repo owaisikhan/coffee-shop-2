@@ -1,24 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SectionHeading } from "../ds/SectionHeading";
 import { FilterTabs } from "../ds/FilterTabs";
-import { ProductCard } from "../ds/ProductCard";
+import { ProductCard3D } from "../ds/ProductCard3D";
+import type { CupVariant } from "../three/CoffeeCupModel";
 
 const FILTERS = ["All", "Black", "Espresso", "Doppio"];
 
-const PRODUCTS = [
-  { name: "Cappuccino", image: "/assets/img-cappuccino.png", cat: "Espresso" },
-  { name: "Americano", image: "/assets/img-americano.png", cat: "Black" },
-  { name: "Espresso", image: "/assets/img-espresso.png", cat: "Doppio" },
-  { name: "Iced Latte", image: "/assets/img-iced-coffee.png", cat: "Espresso" },
-  { name: "Batch Brew", image: "/assets/img-hero-cup.png", cat: "Black" },
-  { name: "Latte", image: "/assets/img-latte-art.png", cat: "Espresso" },
+const PRODUCTS: { name: string; variant: CupVariant; cat: string }[] = [
+  { name: "Cappuccino", variant: "cappuccino", cat: "Espresso" },
+  { name: "Americano", variant: "americano", cat: "Black" },
+  { name: "Espresso", variant: "espresso", cat: "Doppio" },
+  { name: "Iced Latte", variant: "iced", cat: "Espresso" },
+  { name: "Batch Brew", variant: "batch", cat: "Black" },
+  { name: "Latte", variant: "latte", cat: "Espresso" },
 ];
 
 export function BestSellers() {
   const [filter, setFilter] = useState("All");
+  const [active, setActive] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
   const shown = filter === "All" ? PRODUCTS : PRODUCTS.filter((p) => p.cat === filter);
+
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setActive(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section style={{ background: "var(--cream-100)", padding: "104px 48px" }}>
@@ -38,16 +57,17 @@ export function BestSellers() {
         />
         <FilterTabs items={FILTERS} value={filter} onChange={setFilter} />
         <div
+          ref={gridRef}
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: 56,
+            gap: 40,
             justifyContent: "center",
             padding: "14px 0 0 14px",
           }}
         >
           {shown.map((p) => (
-            <ProductCard key={p.name} name={p.name} image={p.image} width={300} />
+            <ProductCard3D key={p.name} name={p.name} variant={p.variant} active={active} width={300} />
           ))}
         </div>
       </div>
