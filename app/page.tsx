@@ -13,13 +13,11 @@ import { Footer } from "@/components/sections/Footer";
 export default function Home() {
   return (
     <div style={{ background: "var(--cream-100)", fontFamily: "var(--font-body)", color: "var(--text-body)" }}>
-      <div style={{ position: "relative" }}>
-        <Hero />
-        <Story />
-        <IceCubes />
-      </div>
+      <Hero />
+      <Story />
       <StatsBand />
       <BestSellers />
+      <IceCubes />
       <VideoBand />
       <Menu />
       <Sourcing />
