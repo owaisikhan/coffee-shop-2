@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const BEAN_IMAGES = ["/assets/bean-1.png", "/assets/bean-2.png", "/assets/bean-3.png", "/assets/bean-4.png"];
-const BEAN_COUNT = 20;
+const BEAN_COUNT = 25;
 
 type Bean = {
   img: string;
@@ -14,7 +14,6 @@ type Bean = {
   scrollSpin: number; // deg of extra rotation per 1000px scrolled
   idleSpinSpeed: number; // deg/sec, continuous -- keeps spinning even at rest
   parallax: number; // 0 (drifts with the page, slow) .. 1 (moves 1:1 with scroll)
-  opacity: number;
 };
 
 // Deterministic PRNG so server and client agree on "random" values (avoids
@@ -51,10 +50,9 @@ export function CoffeeBeans() {
         leftPercent: 3 + rand() * 90,
         size: 38 + rand() * 58,
         rotation: rand() * 360,
-        scrollSpin: (rand() - 0.5) * 70,
-        idleSpinSpeed: (rand() - 0.5) * 24,
+        scrollSpin: (rand() - 0.5) * 100,
+        idleSpinSpeed: (rand() - 0.5) * 40,
         parallax: 0.25 + rand() * 0.65,
-        opacity: 0.3 + rand() * 0.35,
       };
     });
     setBeans(list);
@@ -121,7 +119,7 @@ export function CoffeeBeans() {
             top: `${b.topPercent}%`,
             left: `${b.leftPercent}%`,
             width: b.size,
-            opacity: b.opacity,
+            opacity: 1,
             filter: "drop-shadow(0 6px 10px rgba(27,17,7,.3))",
             willChange: "transform",
           }}
