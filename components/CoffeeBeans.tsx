@@ -50,8 +50,8 @@ export function CoffeeBeans() {
         leftPercent: 3 + rand() * 90,
         size: 38 + rand() * 58,
         rotation: rand() * 360,
-        scrollSpin: (rand() - 0.5) * 100,
-        idleSpinSpeed: (rand() - 0.5) * 40,
+        scrollSpin: (rand() - 0.5) * 160,
+        idleSpinSpeed: (rand() - 0.5) * 90,
         parallax: 0.25 + rand() * 0.65,
       };
     });
