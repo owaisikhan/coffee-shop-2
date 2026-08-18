@@ -14,6 +14,12 @@ type Bean = {
   scrollSpin: number; // deg of extra rotation per 1000px scrolled
   idleSpinSpeed: number; // deg/sec, continuous -- keeps spinning even at rest
   parallax: number; // 0 (drifts with the page, slow) .. 1 (moves 1:1 with scroll)
+  wanderAmpX: number; // px, independent side-to-side wander
+  wanderFreqX: number; // rad/sec
+  wanderPhaseX: number;
+  wanderAmpY: number; // px, independent up/down wander (on top of scroll drift)
+  wanderFreqY: number; // rad/sec
+  wanderPhaseY: number;
 };
 
 // Deterministic PRNG so server and client agree on "random" values (avoids
@@ -53,6 +59,12 @@ export function CoffeeBeans() {
         scrollSpin: (rand() - 0.5) * 160,
         idleSpinSpeed: (rand() - 0.5) * 90,
         parallax: 0.25 + rand() * 0.65,
+        wanderAmpX: 18 + rand() * 40,
+        wanderFreqX: 0.15 + rand() * 0.35,
+        wanderPhaseX: rand() * Math.PI * 2,
+        wanderAmpY: 16 + rand() * 34,
+        wanderFreqY: 0.15 + rand() * 0.35,
+        wanderPhaseY: rand() * Math.PI * 2,
       };
     });
     setBeans(list);
@@ -79,7 +91,9 @@ export function CoffeeBeans() {
         const b = beans[i];
         const drift = y * (1 - b.parallax); // lags behind native scroll by (1 - parallax)
         const rot = b.rotation + (y / 1000) * b.scrollSpin + elapsedSec * b.idleSpinSpeed;
-        el.style.transform = `translateY(${drift}px) rotate(${rot}deg)`;
+        const wanderX = Math.sin(elapsedSec * b.wanderFreqX + b.wanderPhaseX) * b.wanderAmpX;
+        const wanderY = Math.sin(elapsedSec * b.wanderFreqY + b.wanderPhaseY) * b.wanderAmpY;
+        el.style.transform = `translate(${wanderX}px, ${drift + wanderY}px) rotate(${rot}deg)`;
       });
       rafId = requestAnimationFrame(tick);
     };
