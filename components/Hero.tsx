@@ -23,17 +23,28 @@ export function Hero() {
   // frame-by-frame as the user scrolls through the pinned hero (200vh wrapper).
   // Plain <video src> is often not fully seekable, so we re-fetch it as a blob
   // first to guarantee scrubbing works; if that fails we fall back to a loop.
+  //
+  // Raw scroll position is jittery (trackpads/wheels deliver it in uneven bursts),
+  // so applying it 1:1 to opacity/transform/video-seek every event reads as janky.
+  // Instead we track a `target` progress from scroll and ease a `current` value
+  // toward it every animation frame (a standard scroll-lerp), so the copy fade,
+  // scrim, and video scrub all glide rather than snap.
   useEffect(() => {
     let scrubbable = false;
     let seeking = false;
     let blobUrl: string | null = null;
+    let target = 0;
+    let current = 0;
+    let rafId = 0;
 
-    const onScroll = () => {
+    const readTarget = () => {
       const wrap = wrapRef.current;
       if (!wrap) return;
       const span = wrap.offsetHeight - window.innerHeight;
-      const p = Math.max(0, Math.min(1, -wrap.getBoundingClientRect().top / (span || 1)));
+      target = Math.max(0, Math.min(1, -wrap.getBoundingClientRect().top / (span || 1)));
+    };
 
+    const applyProgress = (p: number) => {
       const c = copyRef.current;
       if (c) {
         c.style.opacity = String(Math.max(0, 1 - p * 1.9));
@@ -52,8 +63,15 @@ export function Hero() {
       }
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const tick = () => {
+      current += (target - current) * 0.12;
+      if (Math.abs(target - current) < 0.0005) current = target;
+      applyProgress(current);
+      rafId = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("scroll", readTarget, { passive: true });
+    window.addEventListener("resize", readTarget);
 
     const v = videoRef.current;
     const onSeeked = () => {
@@ -63,7 +81,7 @@ export function Hero() {
     if (v) {
       v.pause();
       v.addEventListener("seeked", onSeeked);
-      v.addEventListener("loadeddata", onScroll);
+      v.addEventListener("loadeddata", readTarget);
       fetch(v.currentSrc || v.src)
         .then((r) => r.blob())
         .then((b) => {
@@ -78,7 +96,7 @@ export function Hero() {
                 v.loop = true;
                 v.play().catch(() => {});
               }
-              onScroll();
+              readTarget();
             },
             { once: true }
           );
@@ -89,13 +107,16 @@ export function Hero() {
         });
     }
 
-    onScroll();
+    readTarget();
+    current = target;
+    rafId = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", readTarget);
+      window.removeEventListener("resize", readTarget);
       if (v) v.removeEventListener("seeked", onSeeked);
       if (blobUrl) URL.revokeObjectURL(blobUrl);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
