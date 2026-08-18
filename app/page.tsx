@@ -1,3 +1,4 @@
+import { CoffeeBeans } from "@/components/CoffeeBeans";
 import { Hero } from "@/components/Hero";
 import { Story } from "@/components/sections/Story";
 import { StatsBand } from "@/components/sections/StatsBand";
@@ -11,7 +12,15 @@ import { Footer } from "@/components/sections/Footer";
 
 export default function Home() {
   return (
-    <div style={{ background: "var(--cream-100)", fontFamily: "var(--font-body)", color: "var(--text-body)" }}>
+    <div
+      style={{
+        position: "relative",
+        background: "var(--cream-100)",
+        fontFamily: "var(--font-body)",
+        color: "var(--text-body)",
+      }}
+    >
+      <CoffeeBeans />
       <Hero />
       <Story />
       <StatsBand />
