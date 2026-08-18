@@ -59,25 +59,35 @@ a:hover {
   color: var(--text-link-hover);
 }
 
-/* The hero video is 16:9. On wide screens `contain` shows the whole frame
-   (pulled back from the cropped `cover` framing) and letterboxes against the
-   espresso backdrop. A portrait phone is far too tall for that -- contain
-   would leave a thin video band -- so narrow screens keep `cover`. */
-.hero-video {
-  object-fit: contain;
+/* Desktop hero is two screens tall: the second screen's worth of scroll is
+   what drives the video scrub. On a phone that means scrolling past two full
+   screens before the page begins, so the hero collapses to a single screen
+   and the video just loops instead (see Hero.tsx). svh tracks the visible
+   viewport as mobile browser chrome hides, avoiding a jump mid-scroll. */
+.hero-wrap {
+  height: 200vh;
+}
+
+.hero-sticky {
+  height: 100vh;
 }
 
 @media (max-width: 900px) {
-  .hero-video {
-    object-fit: cover;
+  .hero-wrap,
+  .hero-sticky {
+    height: 100svh;
   }
 }
 
-/* Five nav links plus the logo and account controls cannot fit a phone width;
-   every link points at a section the user reaches by scrolling anyway. */
-@media (max-width: 760px) {
+/* Five nav links plus the logo and account controls cannot fit a phone width,
+   so they move into the slide-in drawer behind the burger. */
+@media (max-width: 900px) {
   .hero-nav-links {
     display: none !important;
+  }
+
+  .hero-burger {
+    display: flex !important;
   }
 }
 

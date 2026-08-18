@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ds/Button";
+import { Icon } from "./ds/Icon";
 import { IconButton } from "./ds/IconButton";
 import { Logo } from "./ds/Logo";
+
+// Kept in sync with the `hero-nav-links` / `hero-burger` breakpoint in globals.css.
+const MOBILE_QUERY = "(max-width: 900px)";
 
 const NAV_LINKS = [
   { href: "#story", label: "Home", primary: true },
@@ -14,22 +18,43 @@ const NAV_LINKS = [
 ];
 
 export function Hero() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // The hero video doesn't autoplay: it starts as a static frame and scrubs
-  // frame-by-frame as the user scrolls through the pinned hero (200vh wrapper).
-  // Plain <video src> is often not fully seekable, so we re-fetch it as a blob
-  // first to guarantee scrubbing works; if that fails we fall back to a loop.
+  // Desktop: the hero video doesn't autoplay -- it starts as a static frame and
+  // scrubs frame-by-frame as the user scrolls through the pinned hero (200vh
+  // wrapper). Plain <video src> is often not fully seekable, so we re-fetch it
+  // as a blob first to guarantee scrubbing works; if that fails we fall back to
+  // a loop.
   //
   // Raw scroll position is jittery (trackpads/wheels deliver it in uneven bursts),
   // so applying it 1:1 to opacity/transform/video-seek every event reads as janky.
   // Instead we track a `target` progress from scroll and ease a `current` value
   // toward it every animation frame (a standard scroll-lerp), so the copy fade,
   // scrim, and video scrub all glide rather than snap.
+  //
+  // Mobile: scrubbing costs two screens of scrolling before the page even starts,
+  // which is tedious on a phone, so the hero is a single screen with the video
+  // simply looping. That also skips the blob download entirely. The branch is
+  // decided at mount from matchMedia rather than in the markup, so server and
+  // client render identically and there is no hydration mismatch.
   useEffect(() => {
+    const v0 = videoRef.current;
+    if (window.matchMedia(MOBILE_QUERY).matches) {
+      if (v0) {
+        v0.loop = true;
+        v0.muted = true;
+        const play = () => v0.play().catch(() => {});
+        play();
+        v0.addEventListener("loadeddata", play);
+        return () => v0.removeEventListener("loadeddata", play);
+      }
+      return;
+    }
+
     let scrubbable = false;
     let seeking = false;
     let blobUrl: string | null = null;
@@ -120,13 +145,28 @@ export function Hero() {
     };
   }, []);
 
+  // Close on Escape, and stop the page behind the drawer from scrolling.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [menuOpen]);
+
   return (
-    <div ref={wrapRef} style={{ position: "relative", height: "200vh", background: "var(--espresso-900)" }}>
+    <div ref={wrapRef} className="hero-wrap" style={{ position: "relative", background: "var(--espresso-900)" }}>
       <div
+        className="hero-sticky"
         style={{
           position: "sticky",
           top: 0,
-          height: "100vh",
           overflow: "hidden",
           background: "var(--espresso-900)",
         }}
@@ -139,7 +179,6 @@ export function Hero() {
               playsInline
               preload="auto"
               src="/uploads/kling_20251029_Image_to_Video_The_coffee_5026_0.mp4"
-              className="hero-video"
               style={{
                 position: "absolute",
                 top: "50%",
@@ -147,6 +186,7 @@ export function Hero() {
                 width: "100%",
                 height: "100%",
                 transform: "translate(-50%,-50%)",
+                objectFit: "cover",
               }}
             />
             <div
@@ -207,6 +247,28 @@ export function Hero() {
                 Sign In
               </a>
               <IconButton icon="search" label="Search" size={34} />
+              <button
+                type="button"
+                className="hero-burger"
+                aria-label="Open menu"
+                aria-expanded={menuOpen}
+                aria-controls="hero-menu-drawer"
+                onClick={() => setMenuOpen(true)}
+                style={{
+                  width: 34,
+                  height: 34,
+                  display: "none",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "1px solid var(--border-on-dark)",
+                  background: "transparent",
+                  color: "var(--cream-050)",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                <Icon name="menu" size={18} />
+              </button>
             </div>
           </nav>
 
@@ -286,6 +348,92 @@ export function Hero() {
           </div>
         </div>
       </div>
+      {/* Slide-in menu. Fixed and above the beans (z-index 9999) so nothing
+          floats over it. Panel is capped well short of full width. */}
+      <div
+        aria-hidden={!menuOpen}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 10000,
+          pointerEvents: menuOpen ? "auto" : "none",
+        }}
+      >
+        <div
+          onClick={() => setMenuOpen(false)}
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(27,17,7,.55)",
+            opacity: menuOpen ? 1 : 0,
+            transition: "opacity 240ms var(--ease-standard)",
+          }}
+        />
+        <aside
+          id="hero-menu-drawer"
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            height: "100%",
+            width: "min(78vw, 300px)",
+            background: "var(--espresso-900)",
+            borderLeft: "1px solid var(--border-on-dark)",
+            transform: menuOpen ? "translateX(0)" : "translateX(100%)",
+            transition: "transform 260ms var(--ease-standard)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            padding: "20px 24px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <Logo size={20} />
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                width: 34,
+                height: 34,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid var(--border-on-dark)",
+                background: "transparent",
+                color: "var(--cream-050)",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              <Icon name="close" size={16} />
+            </button>
+          </div>
+          {NAV_LINKS.map((link, i) => (
+            <a
+              key={i}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontSize: 15,
+                padding: "12px 0",
+                color: "var(--cream-100)",
+                borderBottom: "1px solid var(--border-on-dark)",
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+          <a
+            href="#visit"
+            onClick={() => setMenuOpen(false)}
+            style={{ fontSize: 15, padding: "12px 0", color: "var(--tan-300)" }}
+          >
+            Sign In
+          </a>
+        </aside>
+      </div>
+
     </div>
   );
 }

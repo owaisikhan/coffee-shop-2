@@ -3,6 +3,8 @@ const PATHS: Record<string, string> = {
   "arrow-left": "M19 12H5M11 18l-6-6 6-6",
   search: "M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM21 21l-4.35-4.35",
   "chevron-down": "M6 9l6 6 6-6",
+  menu: "M4 7h16M4 12h16M4 17h16",
+  close: "M6 6l12 12M18 6L6 18",
   play: "M7 4l12 8-12 8z",
   mail: "M3 6h18v12H3zM3 6l9 7 9-7",
   phone: "M4 4h5l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v5a15 15 0 0 1-16-16z",
