@@ -17,6 +17,14 @@ const RESTITUTION = 0.72; // energy kept per wall bounce
 const DAMP_HALFLIFE = 0.7; // sec for a thrown bean's speed to halve
 const SETTLE_SPEED = 40; // px/sec below which a free bean rejoins the ambient drift
 const MAX_THROW_SPEED = 2400; // px/sec cap, so a fast flick can't ricochet forever
+const BEAN_RESTITUTION = 0.55; // bounciness of a bean-on-bean hit
+const BEAN_RADIUS_SCALE = 0.42; // collision circle vs. image box (beans are oval)
+const MAX_SPIN = 1200; // deg/sec, keeps a hard knock from blurring into a whirl
+// An ambient bean's position is recomputed from its wander formula every frame,
+// so a purely positional fix gets undone. Overlapping pairs always get at least
+// this much separation speed, which knocks them into free mode so they actually
+// part instead of resting merged into one another.
+const MIN_SEPARATION_SPEED = 70; // px/sec
 
 type Bean = {
   topPercent: number;
@@ -55,6 +63,12 @@ type BeanState = {
   grabDX: number;
   grabDY: number;
   lastMoveT: number;
+  // Ambient terms cached each frame so a bean that settles after a collision
+  // can rejoin the drift exactly where it stopped.
+  wanderX: number;
+  wanderY: number;
+  drift: number;
+  ambientRot: number;
 };
 
 // Deterministic PRNG so server and client agree on "random" values (avoids
@@ -68,6 +82,37 @@ function mulberry32(seed: number) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function clampSpin(v: number) {
+  return Math.max(-MAX_SPIN, Math.min(MAX_SPIN, v));
+}
+
+// Bounce a free-flying bean off the current viewport edges. The walls move
+// with the page, so they are expressed in document coordinates.
+function bounceWalls(s: BeanState, scrollX: number, scrollY: number, viewW: number, viewH: number) {
+  const minX = scrollX;
+  const maxX = scrollX + viewW - s.w;
+  const minY = scrollY;
+  const maxY = scrollY + viewH - s.h;
+  if (s.docX < minX) {
+    s.docX = minX + (minX - s.docX) * RESTITUTION;
+    s.vx = Math.abs(s.vx) * RESTITUTION;
+    s.rotVel = -s.rotVel * RESTITUTION;
+  } else if (s.docX > maxX) {
+    s.docX = maxX - (s.docX - maxX) * RESTITUTION;
+    s.vx = -Math.abs(s.vx) * RESTITUTION;
+    s.rotVel = -s.rotVel * RESTITUTION;
+  }
+  if (s.docY < minY) {
+    s.docY = minY + (minY - s.docY) * RESTITUTION;
+    s.vy = Math.abs(s.vy) * RESTITUTION;
+    s.rotVel = -s.rotVel * RESTITUTION;
+  } else if (s.docY > maxY) {
+    s.docY = maxY - (s.docY - maxY) * RESTITUTION;
+    s.vy = -Math.abs(s.vy) * RESTITUTION;
+    s.rotVel = -s.rotVel * RESTITUTION;
+  }
 }
 
 // Coffee beans scattered across the full height of the page. Each one drifts
@@ -136,6 +181,10 @@ export function CoffeeBeans() {
       grabDX: 0,
       grabDY: 0,
       lastMoveT: 0,
+      wanderX: 0,
+      wanderY: 0,
+      drift: 0,
+      ambientRot: 0,
     }));
     setBeans(list);
   }, []);
@@ -154,14 +203,30 @@ export function CoffeeBeans() {
         x: el ? el.offsetLeft : 0,
         y: el ? el.offsetTop : 0,
       }));
+      // Wall bounds and collision radii need the box size for every bean, not
+      // just ones that have been picked up.
+      elRefs.current.forEach((el, i) => {
+        const st = stateRefs.current[i];
+        if (!el || !st) return;
+        st.w = el.offsetWidth;
+        st.h = el.offsetHeight;
+      });
     };
 
     const start = performance.now();
     let lastNow = start;
     let rafId = 0;
+    // docX/docY begin at 0, so the first frame's position delta is meaningless.
+    // Prime them before deriving any velocity or resolving contacts.
+    let primed = false;
 
     // Runs every frame (not just on scroll) so the beans keep drifting and
     // spinning at rest, and so thrown beans keep integrating their physics.
+    //
+    // Three phases per frame: work out where every bean wants to be, resolve
+    // any bean-on-bean contacts, then write the transforms. Positions are kept
+    // in document space for every mode (not just drag/free) so the collision
+    // pass can treat all beans uniformly.
     const tick = (now: number) => {
       const y = window.scrollY;
       const elapsedSec = (now - start) / 1000;
@@ -172,76 +237,135 @@ export function CoffeeBeans() {
       const viewH = document.documentElement.clientHeight;
       const scrollX = window.scrollX;
       const damp = Math.pow(0.5, dt / DAMP_HALFLIFE);
+      const n = elRefs.current.length;
 
-      elRefs.current.forEach((el, i) => {
-        if (!el) return;
+      // --- phase 1: advance each bean -------------------------------------
+      for (let i = 0; i < n; i++) {
+        const el = elRefs.current[i];
+        if (!el) continue;
         const b = beans[i];
         const s = stateRefs.current[i];
         const base = baseRefs.current[i] ?? { x: 0, y: 0 };
 
         const drift = y * (1 - b.parallax); // lags behind native scroll by (1 - parallax)
-        const wanderX = Math.sin(elapsedSec * b.wanderFreqX + b.wanderPhaseX) * b.wanderAmpX;
-        const wanderY = Math.sin(elapsedSec * b.wanderFreqY + b.wanderPhaseY) * b.wanderAmpY;
-        const ambientRot = b.rotation + (y / 1000) * b.scrollSpin + elapsedSec * b.idleSpinSpeed;
+        s.wanderX = Math.sin(elapsedSec * b.wanderFreqX + b.wanderPhaseX) * b.wanderAmpX;
+        s.wanderY = Math.sin(elapsedSec * b.wanderFreqY + b.wanderPhaseY) * b.wanderAmpY;
+        s.drift = drift;
+        s.ambientRot = b.rotation + (y / 1000) * b.scrollSpin + elapsedSec * b.idleSpinSpeed;
 
-        let tx: number;
-        let ty: number;
-        let rot: number;
+        const prevX = s.docX;
+        const prevY = s.docY;
 
         if (s.mode === "ambient") {
-          tx = s.homeDX + wanderX;
-          ty = s.homeDY + drift + wanderY;
-          rot = ambientRot + s.rotOffset;
-        } else {
-          if (s.mode === "free") {
-            s.docX += s.vx * dt;
-            s.docY += s.vy * dt;
+          s.docX = base.x + s.homeDX + s.wanderX;
+          s.docY = base.y + s.homeDY + drift + s.wanderY;
+          s.rot = s.ambientRot + s.rotOffset;
+        } else if (s.mode === "free") {
+          s.docX += s.vx * dt;
+          s.docY += s.vy * dt;
+          bounceWalls(s, scrollX, y, viewW, viewH);
+          s.vx *= damp;
+          s.vy *= damp;
+          s.rotVel *= damp;
+          s.rot += s.rotVel * dt;
+        }
+        // drag mode: docX/docY are driven by the pointer handler.
 
-            // Bounce off the current viewport edges (walls move with scroll).
-            const minX = scrollX;
-            const maxX = scrollX + viewW - s.w;
-            const minY = y;
-            const maxY = y + viewH - s.h;
-            if (s.docX < minX) {
-              s.docX = minX + (minX - s.docX) * RESTITUTION;
-              s.vx = Math.abs(s.vx) * RESTITUTION;
-              s.rotVel = -s.rotVel * RESTITUTION;
-            } else if (s.docX > maxX) {
-              s.docX = maxX - (s.docX - maxX) * RESTITUTION;
-              s.vx = -Math.abs(s.vx) * RESTITUTION;
-              s.rotVel = -s.rotVel * RESTITUTION;
+        // Numerically derived velocity, so an ambient bean's wander and a
+        // dragged bean's pointer motion both carry real momentum into a hit.
+        if (s.mode !== "free" && dt > 0 && primed) {
+          s.vx = (s.docX - prevX) / dt;
+          s.vy = (s.docY - prevY) / dt;
+        }
+      }
+
+      // --- phase 2: bean-on-bean collisions --------------------------------
+      const r = size * BEAN_RADIUS_SCALE;
+      const minDist = r * 2;
+      if (primed) {
+        for (let i = 0; i < n; i++) {
+          const a = stateRefs.current[i];
+          if (!elRefs.current[i]) continue;
+          for (let j = i + 1; j < n; j++) {
+            const b2 = stateRefs.current[j];
+            if (!elRefs.current[j]) continue;
+
+            let dx = b2.docX - a.docX;
+            let dy = b2.docY - a.docY;
+            let dist = Math.hypot(dx, dy);
+            if (dist >= minDist) continue;
+            if (dist < 0.001) {
+              // Exactly coincident: pick an arbitrary axis to separate along.
+              dx = 1;
+              dy = 0;
+              dist = 1;
             }
-            if (s.docY < minY) {
-              s.docY = minY + (minY - s.docY) * RESTITUTION;
-              s.vy = Math.abs(s.vy) * RESTITUTION;
-              s.rotVel = -s.rotVel * RESTITUTION;
-            } else if (s.docY > maxY) {
-              s.docY = maxY - (s.docY - maxY) * RESTITUTION;
-              s.vy = -Math.abs(s.vy) * RESTITUTION;
-              s.rotVel = -s.rotVel * RESTITUTION;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            // A bean held by the pointer is immovable, so it shoves the others.
+            const aFixed = a.mode === "drag";
+            const bFixed = b2.mode === "drag";
+            if (aFixed && bFixed) continue;
+
+            // Push the pair apart so they never visibly sink into each other.
+            const overlap = minDist - dist;
+            const aShare = aFixed ? 0 : bFixed ? 1 : 0.5;
+            const bShare = 1 - aShare;
+            a.docX -= nx * overlap * aShare;
+            a.docY -= ny * overlap * aShare;
+            b2.docX += nx * overlap * bShare;
+            b2.docY += ny * overlap * bShare;
+
+            // Equal masses, so the impulse just swaps the normal components
+            // (scaled by restitution), with a floor so a pair that overlaps
+            // without closing still parts instead of resting merged.
+            const rvn = (b2.vx - a.vx) * nx + (b2.vy - a.vy) * ny;
+            const share = aFixed || bFixed ? 1 : 2;
+            const bounce = rvn < 0 ? (-(1 + BEAN_RESTITUTION) * rvn) / share : 0;
+            const jImpulse = Math.max(bounce, MIN_SEPARATION_SPEED / share);
+            const ix = jImpulse * nx;
+            const iy = jImpulse * ny;
+            const spin = jImpulse * 1.6;
+
+            if (!aFixed) {
+              a.vx -= ix;
+              a.vy -= iy;
+              a.rotVel = clampSpin(a.rotVel - spin);
+              // An ambient bean has no physics of its own, so knock it loose --
+              // it will fly, bounce, slow down and rejoin the drift where it lands.
+              if (a.mode === "ambient") a.mode = "free";
             }
-
-            s.vx *= damp;
-            s.vy *= damp;
-            s.rotVel *= damp;
-            s.rot += s.rotVel * dt;
-
-            if (Math.hypot(s.vx, s.vy) < SETTLE_SPEED) {
-              // Rejoin ambient drift from exactly where it stopped, so there
-              // is no visible jump back to the original layout position.
-              s.homeDX = s.docX - base.x - wanderX;
-              s.homeDY = s.docY - base.y - drift - wanderY;
-              s.rotOffset = s.rot - ambientRot;
-              s.mode = "ambient";
+            if (!bFixed) {
+              b2.vx += ix;
+              b2.vy += iy;
+              b2.rotVel = clampSpin(b2.rotVel + spin);
+              if (b2.mode === "ambient") b2.mode = "free";
             }
           }
-          tx = s.docX - base.x;
-          ty = s.docY - base.y;
-          rot = s.rot;
+        }
+      } else {
+        primed = true;
+      }
+
+      // --- phase 3: settle + render ----------------------------------------
+      for (let i = 0; i < n; i++) {
+        const el = elRefs.current[i];
+        if (!el) continue;
+        const s = stateRefs.current[i];
+        const base = baseRefs.current[i] ?? { x: 0, y: 0 };
+
+        if (s.mode === "free" && Math.hypot(s.vx, s.vy) < SETTLE_SPEED) {
+          // Rejoin ambient drift from exactly where it stopped, so there
+          // is no visible jump back to the original layout position.
+          s.homeDX = s.docX - base.x - s.wanderX;
+          s.homeDY = s.docY - base.y - s.drift - s.wanderY;
+          s.rotOffset = s.rot - s.ambientRot;
+          s.mode = "ambient";
         }
 
-        el.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg)`;
-      });
+        el.style.transform = `translate(${s.docX - base.x}px, ${s.docY - base.y}px) rotate(${s.rot}deg)`;
+      }
 
       rafId = requestAnimationFrame(tick);
     };
@@ -257,7 +381,7 @@ export function CoffeeBeans() {
       ro.disconnect();
       cancelAnimationFrame(rafId);
     };
-  }, [beans]);
+  }, [beans, size]);
 
   const onPointerDown = (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
     const el = elRefs.current[i];
