@@ -1,5 +1,4 @@
 import { Hero } from "@/components/Hero";
-import { IceCubes } from "@/components/IceCubes";
 import { Story } from "@/components/sections/Story";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { BestSellers } from "@/components/sections/BestSellers";
@@ -17,7 +16,6 @@ export default function Home() {
       <Story />
       <StatsBand />
       <BestSellers />
-      <IceCubes />
       <VideoBand />
       <Menu />
       <Sourcing />

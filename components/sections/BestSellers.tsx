@@ -47,11 +47,7 @@ export function BestSellers() {
           }}
         >
           {shown.map((p) => (
-            <div
-              key={p.name}
-              className="product-card-hover"
-              data-ice-cubes-target={p.name === "Iced Latte" ? true : undefined}
-            >
+            <div key={p.name} className="product-card-hover">
               <ProductCard name={p.name} image={p.image} video={p.video} width={300} />
             </div>
           ))}
