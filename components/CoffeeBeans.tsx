@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const BEAN_IMAGES = ["/assets/bean-1.png", "/assets/bean-2.png", "/assets/bean-3.png", "/assets/bean-4.png"];
+const BEAN_IMAGE = "/assets/bean-1.png";
 const BEAN_COUNT = 30;
 
 type Bean = {
-  img: string;
   topPercent: number;
   leftPercent: number;
   size: number;
@@ -51,10 +50,9 @@ export function CoffeeBeans() {
       const bandStart = (i / BEAN_COUNT) * 100;
       const bandSize = 100 / BEAN_COUNT;
       return {
-        img: BEAN_IMAGES[Math.floor(rand() * BEAN_IMAGES.length)],
         topPercent: bandStart + rand() * bandSize * 0.9,
         leftPercent: 3 + rand() * 90,
-        size: 38 + rand() * 58,
+        size: 26 + rand() * 92,
         rotation: rand() * 360,
         scrollSpin: (rand() - 0.5) * 160,
         idleSpinSpeed: (rand() - 0.5) * 90,
@@ -126,7 +124,7 @@ export function CoffeeBeans() {
           ref={(el) => {
             elRefs.current[i] = el;
           }}
-          src={b.img}
+          src={BEAN_IMAGE}
           alt=""
           style={{
             position: "absolute",
