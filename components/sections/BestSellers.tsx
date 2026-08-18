@@ -13,7 +13,7 @@ const PRODUCTS = [
   { name: "Espresso", image: "/assets/img-espresso.png", video: "/uploads/espresso-loop.mp4", cat: "Doppio" },
   { name: "Iced Latte", image: "/assets/img-iced-coffee.png", video: "/uploads/iced-latte-loop.mp4", cat: "Espresso" },
   { name: "Batch Brew", image: "/assets/img-hero-cup.png", video: "/uploads/batch-brew-loop.mp4", cat: "Black" },
-  { name: "Latte", image: "/assets/img-latte-art.png", cat: "Espresso" },
+  { name: "Latte", image: "/assets/img-latte-art.png", video: "/uploads/latte-loop.mp4", cat: "Espresso" },
 ];
 
 export function BestSellers() {
