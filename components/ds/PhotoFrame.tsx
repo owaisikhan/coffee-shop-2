@@ -18,12 +18,16 @@ export function PhotoFrame({
   style?: React.CSSProperties;
 }) {
   return (
-    <div style={{ position: "relative", width, height, ...style }}>
+    // width/height stay numeric for the decor geometry below, but the frame
+    // itself is fluid: it shrinks to its column on narrow screens and keeps
+    // the intended proportions via aspect-ratio instead of a fixed height.
+    <div style={{ position: "relative", width: "100%", maxWidth: width, aspectRatio: `${width} / ${height}`, ...style }}>
       {decor && (
         <svg
-          width={width}
-          height={height}
+          width="100%"
+          height="100%"
           viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="none"
           aria-hidden="true"
           style={{ position: "absolute", inset: 0, overflow: "visible" }}
           fill="none"

@@ -59,11 +59,37 @@ a:hover {
   color: var(--text-link-hover);
 }
 
-/* Product cards slide into their espresso offset block on hover, closing the shadow gap. */
+/* The hero video is 16:9. On wide screens `contain` shows the whole frame
+   (pulled back from the cropped `cover` framing) and letterboxes against the
+   espresso backdrop. A portrait phone is far too tall for that -- contain
+   would leave a thin video band -- so narrow screens keep `cover`. */
+.hero-video {
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  .hero-video {
+    object-fit: cover;
+  }
+}
+
+/* Five nav links plus the logo and account controls cannot fit a phone width;
+   every link points at a section the user reaches by scrolling anyway. */
+@media (max-width: 760px) {
+  .hero-nav-links {
+    display: none !important;
+  }
+}
+
+/* Product cards slide into their espresso offset block on hover, closing the
+   shadow gap. Gated on real hover support: a touch device has no hover state,
+   so the translate would stick after a tap. */
 .product-card-hover {
   transition: transform 200ms cubic-bezier(0.2, 0.6, 0.2, 1);
 }
 
-.product-card-hover:hover {
-  transform: translate(14px, 14px);
+@media (hover: hover) {
+  .product-card-hover:hover {
+    transform: translate(14px, 14px);
+  }
 }

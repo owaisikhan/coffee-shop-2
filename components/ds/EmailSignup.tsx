@@ -22,7 +22,7 @@ export function EmailSignup({
         onSubmit?.(value);
         setValue("");
       }}
-      style={{ display: "flex", width, background: "var(--surface-field)", ...style }}
+      style={{ display: "flex", width: "100%", maxWidth: width, background: "var(--surface-field)", ...style }}
     >
       <input
         value={value}

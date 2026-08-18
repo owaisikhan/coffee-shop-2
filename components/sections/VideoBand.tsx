@@ -29,14 +29,14 @@ export function VideoBand() {
           alignItems: "center",
           textAlign: "center",
           gap: 24,
-          padding: "0 48px",
+          padding: "0 clamp(20px, 5vw, 48px)",
         }}
       >
         <h2
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 900,
-            fontSize: 52,
+            fontSize: "clamp(30px, 6.5vw, 52px)",
             lineHeight: 1.2,
             color: "var(--cream-100)",
             margin: 0,
@@ -47,7 +47,7 @@ export function VideoBand() {
           <br />
           Rested Until Monday
         </h2>
-        <p style={{ fontSize: 17, lineHeight: 1.75, color: "var(--cream-200)", maxWidth: 420, margin: 0 }}>
+        <p style={{ fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.75, color: "var(--cream-200)", maxWidth: 420, margin: 0 }}>
           Nothing Leaves The Roastery Before It Has Had Time To Settle. Nothing Stays Longer Than Two Weeks.
         </p>
       </div>

@@ -2,14 +2,14 @@ import { Button } from "../ds/Button";
 
 export function Sourcing() {
   return (
-    <section id="sourcing" style={{ background: "var(--tan-300)", padding: "104px 48px" }}>
+    <section id="sourcing" style={{ background: "var(--tan-300)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 96,
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
+          gap: "clamp(32px, 6vw, 96px)",
           alignItems: "center",
         }}
       >
@@ -28,7 +28,7 @@ export function Sourcing() {
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 900,
-              fontSize: 44,
+              fontSize: "clamp(28px, 6vw, 44px)",
               lineHeight: 1.2,
               color: "var(--text-heading)",
               margin: 0,
@@ -59,7 +59,7 @@ export function Sourcing() {
             src="/uploads/kling_20251120_Image_to_Video_Fresh_coff_923_0.mp4"
             style={{
               width: "100%",
-              height: 492,
+              height: "clamp(280px, 46vw, 492px)",
               objectFit: "cover",
               display: "block",
               mixBlendMode: "multiply",

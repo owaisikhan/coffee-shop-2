@@ -2,7 +2,7 @@ import { EmailSignup } from "../ds/EmailSignup";
 
 export function Newsletter() {
   return (
-    <section style={{ background: "var(--cream-100)", padding: "104px 48px" }}>
+    <section style={{ background: "var(--cream-100)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
@@ -18,7 +18,7 @@ export function Newsletter() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 900,
-            fontSize: 44,
+            fontSize: "clamp(28px, 6vw, 44px)",
             lineHeight: 1.2,
             color: "var(--text-heading)",
             margin: 0,

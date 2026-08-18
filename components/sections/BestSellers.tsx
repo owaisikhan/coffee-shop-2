@@ -21,7 +21,7 @@ export function BestSellers() {
   const shown = filter === "All" ? PRODUCTS : PRODUCTS.filter((p) => p.cat === filter);
 
   return (
-    <section style={{ background: "var(--cream-100)", padding: "104px 48px" }}>
+    <section style={{ background: "var(--cream-100)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
@@ -41,7 +41,7 @@ export function BestSellers() {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: 56,
+            gap: "clamp(28px, 5vw, 56px)",
             justifyContent: "center",
             padding: "14px 0 0 14px",
           }}

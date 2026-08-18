@@ -4,7 +4,7 @@ import { CarouselNav } from "../ds/CarouselNav";
 
 export function Testimonial() {
   return (
-    <section style={{ background: "var(--espresso-900)", padding: "104px 48px" }}>
+    <section style={{ background: "var(--espresso-900)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",

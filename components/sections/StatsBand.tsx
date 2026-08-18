@@ -9,14 +9,14 @@ const STATS = [
 
 export function StatsBand() {
   return (
-    <section style={{ background: "var(--tan-300)", padding: "72px 48px" }}>
+    <section style={{ background: "var(--tan-300)", padding: "clamp(44px, 7vw, 72px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 48,
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 45%), 1fr))",
+          gap: "clamp(24px, 4vw, 48px)",
         }}
       >
         {STATS.map((s) => (

@@ -3,7 +3,7 @@ import { SocialLinks } from "../ds/SocialLinks";
 
 export function Footer() {
   return (
-    <footer id="visit" style={{ background: "var(--espresso-900)", padding: "96px 48px 48px" }}>
+    <footer id="visit" style={{ background: "var(--espresso-900)", padding: "clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px) clamp(32px, 4vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
@@ -13,7 +13,7 @@ export function Footer() {
           gap: 64,
         }}
       >
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr", gap: 48 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: "clamp(32px, 4vw, 48px)" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 24, alignItems: "flex-start" }}>
             <Logo size={30} />
             <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--cream-200)", maxWidth: 300, margin: 0 }}>

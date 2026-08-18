@@ -3,14 +3,14 @@ import { Button } from "../ds/Button";
 
 export function Story() {
   return (
-    <section id="story" style={{ background: "var(--cream-100)", padding: "104px 48px" }}>
+    <section id="story" style={{ background: "var(--cream-100)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "420px 1fr",
-          gap: 96,
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
+          gap: "clamp(32px, 6vw, 96px)",
           alignItems: "center",
         }}
       >
@@ -36,7 +36,7 @@ export function Story() {
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 900,
-              fontSize: 44,
+              fontSize: "clamp(28px, 6vw, 44px)",
               lineHeight: 1.2,
               color: "var(--text-heading)",
               margin: 0,

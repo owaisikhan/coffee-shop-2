@@ -139,6 +139,7 @@ export function Hero() {
               playsInline
               preload="auto"
               src="/uploads/kling_20251029_Image_to_Video_The_coffee_5026_0.mp4"
+              className="hero-video"
               style={{
                 position: "absolute",
                 top: "50%",
@@ -146,7 +147,6 @@ export function Hero() {
                 width: "100%",
                 height: "100%",
                 transform: "translate(-50%,-50%)",
-                objectFit: "cover",
               }}
             />
             <div
@@ -167,7 +167,7 @@ export function Hero() {
             inset: 0,
             display: "flex",
             flexDirection: "column",
-            padding: "24px 48px 48px",
+            padding: "clamp(14px, 3vw, 24px) clamp(16px, 5vw, 48px) clamp(24px, 5vw, 48px)",
             pointerEvents: "none",
           }}
         >
@@ -175,9 +175,9 @@ export function Hero() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 48,
-              height: 64,
-              padding: "0 24px 0 32px",
+              gap: "clamp(16px, 3vw, 48px)",
+              height: "clamp(56px, 8vw, 64px)",
+              padding: "0 clamp(14px, 3vw, 24px) 0 clamp(16px, 3vw, 32px)",
               border: "1px solid var(--border-on-dark)",
               background: "rgba(27,17,7,.55)",
               pointerEvents: "auto",
@@ -185,7 +185,7 @@ export function Hero() {
             }}
           >
             <Logo size={22} />
-            <div style={{ display: "flex", gap: 32, margin: "0 auto" }}>
+            <div className="hero-nav-links" style={{ display: "flex", gap: "clamp(14px, 2.4vw, 32px)", margin: "0 auto" }}>
               {NAV_LINKS.map((link, i) => (
                 <a
                   key={i}
@@ -200,7 +200,9 @@ export function Hero() {
                 </a>
               ))}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {/* marginLeft keeps this group right-aligned once the centre links
+                are hidden on narrow screens and their auto margins go with them. */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginLeft: "auto" }}>
               <a href="#visit" style={{ fontSize: 13, color: "var(--cream-050)" }}>
                 Sign In
               </a>
@@ -234,7 +236,7 @@ export function Hero() {
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 900,
-                fontSize: 64,
+                fontSize: "clamp(32px, 7.6vw, 64px)",
                 lineHeight: 1.18,
                 color: "var(--cream-100)",
                 margin: 0,
@@ -245,10 +247,10 @@ export function Hero() {
               <br />
               Slowing Down For
             </h1>
-            <p style={{ fontSize: 17, lineHeight: 1.75, color: "var(--cream-200)", maxWidth: 420, margin: 0 }}>
+            <p style={{ fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.75, color: "var(--cream-200)", maxWidth: 420, margin: 0 }}>
               Small Batches, Named Farms, And A Bar Where Someone Still Pulls Every Shot By Hand.
             </p>
-            <div style={{ display: "flex", gap: 16, pointerEvents: "auto", marginTop: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, pointerEvents: "auto", marginTop: 8 }}>
               <Button variant="primary" style={{ minWidth: 150 }}>
                 Order Now
               </Button>

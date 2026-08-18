@@ -59,7 +59,7 @@ function MenuColumn({ heading, items }: { heading: string; items: { name: string
 
 export function Menu() {
   return (
-    <section id="menu" style={{ background: "var(--cream-100)", padding: "104px 48px" }}>
+    <section id="menu" style={{ background: "var(--cream-100)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
         style={{
           maxWidth: "var(--container-max)",
@@ -73,7 +73,7 @@ export function Menu() {
           title="The Menu"
           body="Espresso And Filter, Priced For A Cup You Drink Standing Up Or Sitting Down."
         />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "64px 96px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))", gap: "clamp(40px, 6vw, 64px) clamp(32px, 6vw, 96px)" }}>
           <MenuColumn heading="Espresso Bar" items={ESPRESSO_BAR} />
           <MenuColumn heading="Filter And Beans" items={FILTER_AND_BEANS} />
         </div>

@@ -6,6 +6,12 @@ import { useEffect, useRef, useState } from "react";
 const BEAN_IMAGE = "/assets/bean-5.png";
 const BEAN_COUNT = 30;
 const BEAN_SIZE = 72; // px, uniform across every bean
+// A phone screen is a fraction of the width but nearly the same height, so the
+// desktop count reads as clutter and the beans swallow too many taps. Scaled
+// down once on mount (never re-randomised on resize, which would teleport them).
+const MOBILE_BREAKPOINT = 760;
+const MOBILE_BEAN_COUNT = 12;
+const MOBILE_BEAN_SIZE = 46;
 
 const RESTITUTION = 0.72; // energy kept per wall bounce
 const DAMP_HALFLIFE = 0.7; // sec for a thrown bean's speed to halve
@@ -75,6 +81,7 @@ function mulberry32(seed: number) {
 // down and rejoins the ambient drift from wherever it came to rest.
 export function CoffeeBeans() {
   const [beans, setBeans] = useState<Bean[] | null>(null);
+  const [size, setSize] = useState(BEAN_SIZE);
   const wrapRef = useRef<HTMLDivElement>(null);
   const elRefs = useRef<(HTMLImageElement | null)[]>([]);
   const stateRefs = useRef<BeanState[]>([]);
@@ -82,9 +89,12 @@ export function CoffeeBeans() {
 
   useEffect(() => {
     const rand = mulberry32(20260818);
-    const list: Bean[] = Array.from({ length: BEAN_COUNT }, (_, i) => {
-      const bandStart = (i / BEAN_COUNT) * 100;
-      const bandSize = 100 / BEAN_COUNT;
+    const narrow = window.innerWidth <= MOBILE_BREAKPOINT;
+    const count = narrow ? MOBILE_BEAN_COUNT : BEAN_COUNT;
+    setSize(narrow ? MOBILE_BEAN_SIZE : BEAN_SIZE);
+    const list: Bean[] = Array.from({ length: count }, (_, i) => {
+      const bandStart = (i / count) * 100;
+      const bandSize = 100 / count;
       // Weighted toward the left/right margins so the beans frame the content
       // instead of crowding the centred headline copy; a few still cross the
       // middle so the page doesn't look like two tidy columns.
@@ -348,7 +358,7 @@ export function CoffeeBeans() {
             position: "absolute",
             top: `${b.topPercent}%`,
             left: `${b.leftPercent}%`,
-            width: BEAN_SIZE,
+            width: size,
             opacity: 1,
             filter: "drop-shadow(0 6px 10px rgba(27,17,7,.3))",
             willChange: "transform",

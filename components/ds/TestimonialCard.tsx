@@ -16,7 +16,7 @@ export function TestimonialCard({
   style?: React.CSSProperties;
 }) {
   return (
-    <div style={{ position: "relative", width, paddingTop: 44, ...style }}>
+    <div style={{ position: "relative", width: "100%", maxWidth: width, paddingTop: 44, ...style }}>
       {avatar && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
