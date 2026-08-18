@@ -1,4 +1,5 @@
 import { Hero } from "@/components/Hero";
+import { IceCubes } from "@/components/IceCubes";
 import { Story } from "@/components/sections/Story";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { BestSellers } from "@/components/sections/BestSellers";
@@ -12,8 +13,11 @@ import { Footer } from "@/components/sections/Footer";
 export default function Home() {
   return (
     <div style={{ background: "var(--cream-100)", fontFamily: "var(--font-body)", color: "var(--text-body)" }}>
-      <Hero />
-      <Story />
+      <div style={{ position: "relative" }}>
+        <Hero />
+        <Story />
+        <IceCubes />
+      </div>
       <StatsBand />
       <BestSellers />
       <VideoBand />
