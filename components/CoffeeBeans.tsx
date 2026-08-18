@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const BEAN_IMAGE = "/assets/bean-1.png";
+// bean-1.png is kept in public/assets for future use.
+const BEAN_IMAGE = "/assets/bean-5.png";
 const BEAN_COUNT = 30;
+const BEAN_SIZE = 72; // px, uniform across every bean
 
 const RESTITUTION = 0.72; // energy kept per wall bounce
 const DAMP_HALFLIFE = 0.7; // sec for a thrown bean's speed to halve
@@ -13,7 +15,6 @@ const MAX_THROW_SPEED = 2400; // px/sec cap, so a fast flick can't ricochet fore
 type Bean = {
   topPercent: number;
   leftPercent: number;
-  size: number;
   rotation: number;
   scrollSpin: number; // deg of extra rotation per 1000px scrolled
   idleSpinSpeed: number; // deg/sec, continuous -- keeps spinning even at rest
@@ -97,7 +98,6 @@ export function CoffeeBeans() {
       return {
         topPercent: bandStart + rand() * bandSize * 0.9,
         leftPercent,
-        size: 26 + rand() * 92,
         rotation: rand() * 360,
         scrollSpin: (rand() - 0.5) * 160,
         idleSpinSpeed: (rand() - 0.5) * 90,
@@ -348,7 +348,7 @@ export function CoffeeBeans() {
             position: "absolute",
             top: `${b.topPercent}%`,
             left: `${b.leftPercent}%`,
-            width: b.size,
+            width: BEAN_SIZE,
             opacity: 1,
             filter: "drop-shadow(0 6px 10px rgba(27,17,7,.3))",
             willChange: "transform",
