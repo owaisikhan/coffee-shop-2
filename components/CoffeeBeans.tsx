@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const BEAN_IMAGES = ["/assets/bean-1.png", "/assets/bean-2.png", "/assets/bean-3.png", "/assets/bean-4.png"];
-const BEAN_COUNT = 25;
+const BEAN_COUNT = 30;
 
 type Bean = {
   img: string;
