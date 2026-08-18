@@ -48,3 +48,12 @@ a {
 a:hover {
   color: var(--text-link-hover);
 }
+
+/* Product cards slide into their espresso offset block on hover, closing the shadow gap. */
+.product-card-hover {
+  transition: transform 200ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.product-card-hover:hover {
+  transform: translate(14px, 14px);
+}

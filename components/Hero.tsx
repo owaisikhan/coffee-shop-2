@@ -5,8 +5,6 @@ import { Button } from "./ds/Button";
 import { IconButton } from "./ds/IconButton";
 import { Logo } from "./ds/Logo";
 
-const HERO_FINAL_SCALE = 0.72;
-
 const NAV_LINKS = [
   { href: "#story", label: "Home", primary: true },
   { href: "#menu", label: "Menu" },
@@ -17,25 +15,25 @@ const NAV_LINKS = [
 
 export function Hero() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // The hero video doesn't autoplay: it starts as a static frame and scrubs
+  // frame-by-frame as the user scrolls through the pinned hero (200vh wrapper).
+  // Plain <video src> is often not fully seekable, so we re-fetch it as a blob
+  // first to guarantee scrubbing works; if that fails we fall back to a loop.
   useEffect(() => {
+    let scrubbable = false;
+    let seeking = false;
+    let blobUrl: string | null = null;
+
     const onScroll = () => {
       const wrap = wrapRef.current;
       if (!wrap) return;
       const span = wrap.offsetHeight - window.innerHeight;
       const p = Math.max(0, Math.min(1, -wrap.getBoundingClientRect().top / (span || 1)));
-      const end = HERO_FINAL_SCALE;
-      const s = 1 - (1 - end) * p;
-      const f = frameRef.current;
-      if (f) {
-        f.style.transform = `scale(${s})`;
-        f.style.padding = `${18 * p}px`;
-        f.style.background = p > 0.02 ? "var(--cream-100)" : "transparent";
-      }
+
       const c = copyRef.current;
       if (c) {
         c.style.opacity = String(Math.max(0, 1 - p * 1.9));
@@ -43,14 +41,61 @@ export function Hero() {
       }
       const sc = scrimRef.current;
       if (sc) sc.style.opacity = String(1 - 0.55 * p);
+
+      const v = videoRef.current;
+      if (v && scrubbable && v.duration && !seeking) {
+        const t = Math.min(v.duration - 0.05, p * v.duration);
+        if (Math.abs(t - v.currentTime) > 0.02) {
+          seeking = true;
+          v.currentTime = t;
+        }
+      }
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+
+    const v = videoRef.current;
+    const onSeeked = () => {
+      seeking = false;
+    };
+
+    if (v) {
+      v.pause();
+      v.addEventListener("seeked", onSeeked);
+      v.addEventListener("loadeddata", onScroll);
+      fetch(v.currentSrc || v.src)
+        .then((r) => r.blob())
+        .then((b) => {
+          blobUrl = URL.createObjectURL(b);
+          v.src = blobUrl;
+          v.load();
+          v.addEventListener(
+            "loadeddata",
+            () => {
+              scrubbable = v.seekable.length > 0 && v.seekable.end(0) > 0.5;
+              if (!scrubbable) {
+                v.loop = true;
+                v.play().catch(() => {});
+              }
+              onScroll();
+            },
+            { once: true }
+          );
+        })
+        .catch(() => {
+          v.loop = true;
+          v.play().catch(() => {});
+        });
+    }
+
     onScroll();
-    videoRef.current?.play().catch(() => {});
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (v) v.removeEventListener("seeked", onSeeked);
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
   }, []);
 
@@ -65,14 +110,13 @@ export function Hero() {
           background: "var(--espresso-900)",
         }}
       >
-        <div ref={frameRef} style={{ position: "absolute", inset: 0, display: "flex", transformOrigin: "50% 42%" }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex" }}>
           <div style={{ position: "relative", flex: 1, overflow: "hidden", background: "var(--espresso-800)" }}>
             <video
               ref={videoRef}
-              autoPlay
               muted
-              loop
               playsInline
+              preload="auto"
               src="/uploads/kling_20251029_Image_to_Video_The_coffee_5026_0.mp4"
               style={{
                 position: "absolute",

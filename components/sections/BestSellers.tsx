@@ -47,7 +47,9 @@ export function BestSellers() {
           }}
         >
           {shown.map((p) => (
-            <ProductCard key={p.name} name={p.name} image={p.image} width={300} />
+            <div key={p.name} className="product-card-hover">
+              <ProductCard name={p.name} image={p.image} width={300} />
+            </div>
           ))}
         </div>
       </div>

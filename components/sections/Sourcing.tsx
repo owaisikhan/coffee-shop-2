@@ -50,27 +50,25 @@ export function Sourcing() {
           </Button>
         </div>
         <div style={{ position: "relative" }}>
-          <div
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            src="/uploads/kling_20251120_Image_to_Video_Fresh_coff_923_0.mp4"
             style={{
-              position: "absolute",
-              left: -14,
-              top: -14,
-              right: 14,
-              bottom: 14,
-              background: "var(--espresso-900)",
+              width: "100%",
+              height: 492,
+              objectFit: "cover",
+              display: "block",
+              mixBlendMode: "multiply",
+              WebkitMaskImage:
+                "radial-gradient(115% 108% at 58% 46%,#000 42%,rgba(0,0,0,.55) 70%,transparent 96%)",
+              maskImage:
+                "radial-gradient(115% 108% at 58% 46%,#000 42%,rgba(0,0,0,.55) 70%,transparent 96%)",
             }}
           />
-          <div style={{ position: "relative", background: "var(--cream-100)", padding: 12 }}>
-            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              src="/uploads/kling_20251120_Image_to_Video_Fresh_coff_923_0.mp4"
-              style={{ width: "100%", height: 460, objectFit: "cover", display: "block" }}
-            />
-          </div>
         </div>
       </div>
     </section>
