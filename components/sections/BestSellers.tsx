@@ -8,11 +8,11 @@ import { ProductCard } from "../ds/ProductCard";
 const FILTERS = ["All", "Black", "Espresso", "Doppio"];
 
 const PRODUCTS = [
-  { name: "Cappuccino", image: "/assets/img-cappuccino.png", cat: "Espresso" },
-  { name: "Americano", image: "/assets/img-americano.png", cat: "Black" },
-  { name: "Espresso", image: "/assets/img-espresso.png", cat: "Doppio" },
-  { name: "Iced Latte", image: "/assets/img-iced-coffee.png", cat: "Espresso" },
-  { name: "Batch Brew", image: "/assets/img-hero-cup.png", cat: "Black" },
+  { name: "Cappuccino", image: "/assets/img-cappuccino.png", video: "/uploads/cappuccino-loop.mp4", cat: "Espresso" },
+  { name: "Americano", image: "/assets/img-americano.png", video: "/uploads/americano-loop.mp4", cat: "Black" },
+  { name: "Espresso", image: "/assets/img-espresso.png", video: "/uploads/espresso-loop.mp4", cat: "Doppio" },
+  { name: "Iced Latte", image: "/assets/img-iced-coffee.png", video: "/uploads/iced-latte-loop.mp4", cat: "Espresso" },
+  { name: "Batch Brew", image: "/assets/img-hero-cup.png", video: "/uploads/batch-brew-loop.mp4", cat: "Black" },
   { name: "Latte", image: "/assets/img-latte-art.png", cat: "Espresso" },
 ];
 
@@ -48,7 +48,7 @@ export function BestSellers() {
         >
           {shown.map((p) => (
             <div key={p.name} className="product-card-hover">
-              <ProductCard name={p.name} image={p.image} width={300} />
+              <ProductCard name={p.name} image={p.image} video={p.video} width={300} />
             </div>
           ))}
         </div>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function ProductCard({
   name,
   image,
+  video,
   action = "Order Now",
   onAction,
   width = 300,
@@ -12,12 +13,28 @@ export function ProductCard({
 }: {
   name: string;
   image: string;
+  video?: string;
   action?: string;
   onAction?: () => void;
   width?: number;
   style?: React.CSSProperties;
 }) {
   const [hover, setHover] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { threshold: 0.25 }
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
   return (
     <div style={{ position: "relative", width, ...style }}>
       <div
@@ -32,12 +49,26 @@ export function ProductCard({
       />
       <div style={{ position: "relative", background: "var(--cream-200)" }}>
         <div style={{ padding: "var(--space-3)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={image}
-            alt={name}
-            style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
-          />
+          {video ? (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              ref={videoRef}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster={image}
+              src={video}
+              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={image}
+              alt={name}
+              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
+            />
+          )}
         </div>
         <h3
           style={{
