@@ -5,12 +5,12 @@ import { useEffect, useRef, useState } from "react";
 // bean-1.png is kept in public/assets for future use.
 const BEAN_IMAGE = "/assets/bean-5.png";
 const BEAN_COUNT = 15;
-const BEAN_SIZE = 72; // px, uniform across every bean
+const BEAN_SIZE = 60; // px, uniform across every bean
 // A phone screen is a fraction of the width but nearly the same height, so the
 // desktop count reads as clutter and the beans swallow too many taps. Scaled
 // down once on mount (never re-randomised on resize, which would teleport them).
 const MOBILE_BREAKPOINT = 760;
-const MOBILE_BEAN_COUNT = 6;
+const MOBILE_BEAN_COUNT = 8;
 const MOBILE_BEAN_SIZE = 46;
 
 const RESTITUTION = 0.72; // energy kept per wall bounce
@@ -100,7 +100,13 @@ function clampSpin(v: number) {
 
 // Bounce a free-flying bean off the current viewport edges. The walls move
 // with the page, so they are expressed in document coordinates.
-function bounceWalls(s: BeanState, scrollX: number, scrollY: number, viewW: number, viewH: number) {
+function bounceWalls(
+  s: BeanState,
+  scrollX: number,
+  scrollY: number,
+  viewW: number,
+  viewH: number,
+) {
   const minX = scrollX;
   const maxX = scrollX + viewW - s.w;
   const minY = scrollY;
@@ -224,7 +230,8 @@ export function CoffeeBeans() {
     // reflows every tick.
     const measure = () => {
       const wrap = wrapRef.current;
-      if (wrap) wrap.style.height = `${document.documentElement.scrollHeight}px`;
+      if (wrap)
+        wrap.style.height = `${document.documentElement.scrollHeight}px`;
       baseRefs.current = elRefs.current.map((el) => ({
         x: el ? el.offsetLeft : 0,
         y: el ? el.offsetTop : 0,
@@ -274,10 +281,13 @@ export function CoffeeBeans() {
         const base = baseRefs.current[i] ?? { x: 0, y: 0 };
 
         const drift = y * (1 - b.parallax); // lags behind native scroll by (1 - parallax)
-        s.wanderX = Math.sin(elapsedSec * b.wanderFreqX + b.wanderPhaseX) * b.wanderAmpX;
-        s.wanderY = Math.sin(elapsedSec * b.wanderFreqY + b.wanderPhaseY) * b.wanderAmpY;
+        s.wanderX =
+          Math.sin(elapsedSec * b.wanderFreqX + b.wanderPhaseX) * b.wanderAmpX;
+        s.wanderY =
+          Math.sin(elapsedSec * b.wanderFreqY + b.wanderPhaseY) * b.wanderAmpY;
         s.drift = drift;
-        s.ambientRot = b.rotation + (y / 1000) * b.scrollSpin + elapsedSec * b.idleSpinSpeed;
+        s.ambientRot =
+          b.rotation + (y / 1000) * b.scrollSpin + elapsedSec * b.idleSpinSpeed;
 
         const prevX = s.docX;
         const prevY = s.docY;
@@ -348,7 +358,8 @@ export function CoffeeBeans() {
             // without closing still parts instead of resting merged.
             const rvn = (b2.vx - a.vx) * nx + (b2.vy - a.vy) * ny;
             const share = aFixed || bFixed ? 1 : 2;
-            const bounce = rvn < 0 ? (-(1 + BEAN_RESTITUTION) * rvn) / share : 0;
+            const bounce =
+              rvn < 0 ? (-(1 + BEAN_RESTITUTION) * rvn) / share : 0;
             const jImpulse = Math.max(bounce, MIN_SEPARATION_SPEED / share);
             const ix = jImpulse * nx;
             const iy = jImpulse * ny;
@@ -409,73 +420,87 @@ export function CoffeeBeans() {
     };
   }, [beans, size]);
 
-  const onPointerDown = (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
-    const el = elRefs.current[i];
-    const s = stateRefs.current[i];
-    if (!el || !s) return;
-    e.preventDefault();
-    el.setPointerCapture(e.pointerId);
+  const onPointerDown =
+    (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
+      const el = elRefs.current[i];
+      const s = stateRefs.current[i];
+      if (!el || !s) return;
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
 
-    const rect = el.getBoundingClientRect();
-    s.w = rect.width;
-    s.h = rect.height;
-    s.docX = rect.left + window.scrollX;
-    s.docY = rect.top + window.scrollY;
-    s.grabDX = e.pageX - s.docX;
-    s.grabDY = e.pageY - s.docY;
-    s.vx = 0;
-    s.vy = 0;
-    s.rotVel = 0;
-    // Carry the current on-screen rotation over so grabbing doesn't snap it.
-    const match = /rotate\(([-0-9.]+)deg\)/.exec(el.style.transform);
-    s.rot = match ? parseFloat(match[1]) : 0;
-    s.lastMoveT = performance.now();
-    s.downT = s.lastMoveT;
-    s.downPageX = e.pageX;
-    s.downPageY = e.pageY;
-    s.moved = 0;
-    s.pointerIsTouch = e.pointerType === "touch";
-    s.mode = "drag";
-  };
+      const rect = el.getBoundingClientRect();
+      s.w = rect.width;
+      s.h = rect.height;
+      s.docX = rect.left + window.scrollX;
+      s.docY = rect.top + window.scrollY;
+      s.grabDX = e.pageX - s.docX;
+      s.grabDY = e.pageY - s.docY;
+      s.vx = 0;
+      s.vy = 0;
+      s.rotVel = 0;
+      // Carry the current on-screen rotation over so grabbing doesn't snap it.
+      const match = /rotate\(([-0-9.]+)deg\)/.exec(el.style.transform);
+      s.rot = match ? parseFloat(match[1]) : 0;
+      s.lastMoveT = performance.now();
+      s.downT = s.lastMoveT;
+      s.downPageX = e.pageX;
+      s.downPageY = e.pageY;
+      s.moved = 0;
+      s.pointerIsTouch = e.pointerType === "touch";
+      s.mode = "drag";
+    };
 
-  const onPointerMove = (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
-    const s = stateRefs.current[i];
-    if (!s || s.mode !== "drag") return;
+  const onPointerMove =
+    (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
+      const s = stateRefs.current[i];
+      if (!s || s.mode !== "drag") return;
 
-    const now = performance.now();
-    const dt = Math.max(0.008, (now - s.lastMoveT) / 1000);
-    s.lastMoveT = now;
+      const now = performance.now();
+      const dt = Math.max(0.008, (now - s.lastMoveT) / 1000);
+      s.lastMoveT = now;
 
-    const prevX = s.docX;
-    const prevY = s.docY;
+      const prevX = s.docX;
+      const prevY = s.docY;
 
-    // Clamp into the viewport so a dragged bean visibly hits the screen edges
-    // instead of disappearing past them.
-    const viewW = document.documentElement.clientWidth;
-    const viewH = document.documentElement.clientHeight;
-    const nextX = e.pageX - s.grabDX;
-    const nextY = e.pageY - s.grabDY;
-    s.docX = Math.min(Math.max(nextX, window.scrollX), window.scrollX + viewW - s.w);
-    s.docY = Math.min(Math.max(nextY, window.scrollY), window.scrollY + viewH - s.h);
+      // Clamp into the viewport so a dragged bean visibly hits the screen edges
+      // instead of disappearing past them.
+      const viewW = document.documentElement.clientWidth;
+      const viewH = document.documentElement.clientHeight;
+      const nextX = e.pageX - s.grabDX;
+      const nextY = e.pageY - s.grabDY;
+      s.docX = Math.min(
+        Math.max(nextX, window.scrollX),
+        window.scrollX + viewW - s.w,
+      );
+      s.docY = Math.min(
+        Math.max(nextY, window.scrollY),
+        window.scrollY + viewH - s.h,
+      );
 
-    // Track pointer velocity so the release throw carries the flick's momentum.
-    s.vx = (s.docX - prevX) / dt;
-    s.vy = (s.docY - prevY) / dt;
-    s.rot += ((s.docX - prevX) * 0.6) % 360;
-    s.moved = Math.hypot(e.pageX - s.downPageX, e.pageY - s.downPageY);
-  };
+      // Track pointer velocity so the release throw carries the flick's momentum.
+      s.vx = (s.docX - prevX) / dt;
+      s.vy = (s.docY - prevY) / dt;
+      s.rot += ((s.docX - prevX) * 0.6) % 360;
+      s.moved = Math.hypot(e.pageX - s.downPageX, e.pageY - s.downPageY);
+    };
 
   const endDrag = (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
     const el = elRefs.current[i];
     const s = stateRefs.current[i];
     if (!el || !s || s.mode !== "drag") return;
-    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    if (el.hasPointerCapture(e.pointerId))
+      el.releasePointerCapture(e.pointerId);
 
     // A tap on a touch screen (no real drag) still sends the bean moving,
     // pushed away from wherever the finger landed on it -- poke the left edge
     // and it heads right. Touch-only, so a desktop click stays inert, and it
     // just seeds a velocity: the existing free-flight physics does the rest.
-    if (isNarrowRef.current && s.pointerIsTouch && s.moved < TAP_SLOP && performance.now() - s.downT < TAP_MS) {
+    if (
+      isNarrowRef.current &&
+      s.pointerIsTouch &&
+      s.moved < TAP_SLOP &&
+      performance.now() - s.downT < TAP_MS
+    ) {
       let kx = s.grabDX - s.w / 2;
       let ky = s.grabDY - s.h / 2;
       let mag = Math.hypot(kx, ky);
@@ -511,7 +536,8 @@ export function CoffeeBeans() {
       s.vy *= k;
       speed = MAX_THROW_SPEED;
     }
-    s.rotVel = Math.max(-900, Math.min(900, s.vx * 1.2)) + (speed > 400 ? 180 : 0);
+    s.rotVel =
+      Math.max(-900, Math.min(900, s.vx * 1.2)) + (speed > 400 ? 180 : 0);
     s.mode = "free";
   };
 
@@ -521,7 +547,15 @@ export function CoffeeBeans() {
     <div
       ref={wrapRef}
       aria-hidden
-      style={{ position: "absolute", top: 0, left: 0, width: "100%", pointerEvents: "none", zIndex: 9999, overflow: "hidden" }}
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        pointerEvents: "none",
+        zIndex: 9999,
+        overflow: "hidden",
+      }}
     >
       {beans.map((b, i) => (
         // eslint-disable-next-line @next/next/no-img-element
