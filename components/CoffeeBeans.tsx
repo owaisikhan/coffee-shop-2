@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 
 // bean-1.png is kept in public/assets for future use.
 const BEAN_IMAGE = "/assets/bean-5.png";
-const BEAN_COUNT = 30;
+const BEAN_COUNT = 15;
 const BEAN_SIZE = 72; // px, uniform across every bean
 // A phone screen is a fraction of the width but nearly the same height, so the
 // desktop count reads as clutter and the beans swallow too many taps. Scaled
 // down once on mount (never re-randomised on resize, which would teleport them).
 const MOBILE_BREAKPOINT = 760;
-const MOBILE_BEAN_COUNT = 12;
+const MOBILE_BEAN_COUNT = 6;
 const MOBILE_BEAN_SIZE = 46;
 
 const RESTITUTION = 0.72; // energy kept per wall bounce
