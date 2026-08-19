@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { SectionHeading } from "../ds/SectionHeading";
-import { FilterTabs } from "../ds/FilterTabs";
-import { ProductCard } from "../ds/ProductCard";
+import { SectionHeading } from "../ui/SectionHeading";
+import { FilterTabs } from "../ui/FilterTabs";
+import { ProductCard } from "../ui/ProductCard";
 
 const FILTERS = ["All", "Black", "Espresso", "Doppio"];
 

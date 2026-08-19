@@ -1,4 +1,4 @@
-import { StatBlock } from "../ds/StatBlock";
+import { StatBlock } from "../ui/StatBlock";
 
 const STATS = [
   { value: "50+", label: "Item Of Coffee" },

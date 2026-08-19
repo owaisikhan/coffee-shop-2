@@ -1,5 +1,5 @@
-import { Logo } from "../ds/Logo";
-import { SocialLinks } from "../ds/SocialLinks";
+import { Logo } from "../ui/Logo";
+import { SocialLinks } from "../ui/SocialLinks";
 
 export function Footer() {
   return (

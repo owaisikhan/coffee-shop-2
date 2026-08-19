@@ -1,4 +1,4 @@
-import { AmbientVideo } from "../ds/AmbientVideo";
+import { AmbientVideo } from "../ui/AmbientVideo";
 
 export function VideoBand() {
   return (

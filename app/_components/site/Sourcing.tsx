@@ -1,5 +1,5 @@
-import { AmbientVideo } from "../ds/AmbientVideo";
-import { Button } from "../ds/Button";
+import { AmbientVideo } from "../ui/AmbientVideo";
+import { Button } from "../ui/Button";
 
 export function Sourcing() {
   return (

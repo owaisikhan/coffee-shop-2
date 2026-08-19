@@ -1,4 +1,4 @@
-import { EmailSignup } from "../ds/EmailSignup";
+import { EmailSignup } from "../ui/EmailSignup";
 
 export function Newsletter() {
   return (

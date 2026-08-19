@@ -1,14 +1,14 @@
-import { CoffeeBeans } from "@/components/CoffeeBeans";
-import { Hero } from "@/components/Hero";
-import { Story } from "@/components/sections/Story";
-import { StatsBand } from "@/components/sections/StatsBand";
-import { BestSellers } from "@/components/sections/BestSellers";
-import { VideoBand } from "@/components/sections/VideoBand";
-import { Menu } from "@/components/sections/Menu";
-import { Sourcing } from "@/components/sections/Sourcing";
-import { Testimonial } from "@/components/sections/Testimonial";
-import { Newsletter } from "@/components/sections/Newsletter";
-import { Footer } from "@/components/sections/Footer";
+import { CoffeeBeans } from "@/app/_components/site/CoffeeBeans";
+import { Hero } from "@/app/_components/site/Hero";
+import { Story } from "@/app/_components/site/Story";
+import { StatsBand } from "@/app/_components/site/StatsBand";
+import { BestSellers } from "@/app/_components/site/BestSellers";
+import { VideoBand } from "@/app/_components/site/VideoBand";
+import { Menu } from "@/app/_components/site/Menu";
+import { Sourcing } from "@/app/_components/site/Sourcing";
+import { Testimonial } from "@/app/_components/site/Testimonial";
+import { Newsletter } from "@/app/_components/site/Newsletter";
+import { Footer } from "@/app/_components/site/Footer";
 
 export default function Home() {
   return (

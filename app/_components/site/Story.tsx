@@ -1,5 +1,5 @@
-import { PhotoFrame } from "../ds/PhotoFrame";
-import { Button } from "../ds/Button";
+import { PhotoFrame } from "../ui/PhotoFrame";
+import { Button } from "../ui/Button";
 
 export function Story() {
   return (

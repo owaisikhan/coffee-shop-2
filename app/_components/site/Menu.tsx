@@ -1,4 +1,4 @@
-import { SectionHeading } from "../ds/SectionHeading";
+import { SectionHeading } from "../ui/SectionHeading";
 
 const ESPRESSO_BAR = [
   { name: "Espresso", price: "3.00" },

@@ -1,6 +1,6 @@
-import { SectionHeading } from "../ds/SectionHeading";
-import { TestimonialCard } from "../ds/TestimonialCard";
-import { CarouselNav } from "../ds/CarouselNav";
+import { SectionHeading } from "../ui/SectionHeading";
+import { TestimonialCard } from "../ui/TestimonialCard";
+import { CarouselNav } from "../ui/CarouselNav";
 
 export function Testimonial() {
   return (

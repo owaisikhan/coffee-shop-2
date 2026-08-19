@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button } from "./ds/Button";
-import { Icon } from "./ds/Icon";
-import { IconButton } from "./ds/IconButton";
-import { Logo } from "./ds/Logo";
+import { Button } from "../ui/Button";
+import { Icon } from "../ui/Icon";
+import { IconButton } from "../ui/IconButton";
+import { Logo } from "../ui/Logo";
 
 // Kept in sync with the `hero-nav-links` / `hero-burger` breakpoint in globals.css.
 const MOBILE_QUERY = "(max-width: 900px)";

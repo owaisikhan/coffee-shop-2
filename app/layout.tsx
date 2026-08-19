@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Lora } from "next/font/google";
-import "@/styles/globals.css";
+import "@/app/_styles/globals.css";
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
