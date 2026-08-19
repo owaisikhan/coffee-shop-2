@@ -22,11 +22,20 @@ const description =
   "Small batches, named farms, and a bar where someone still pulls every shot by hand.";
 
 // metadataBase is what turns the relative icon/OG paths into the absolute URLs
-// crawlers and chat clients require. Point NEXT_PUBLIC_SITE_URL at the real
-// domain in the host's env; the Vercel URL is a sensible fallback.
+// crawlers and chat clients require.
+//
+// Order matters. VERCEL_URL is the *per-deployment* host, which changes on
+// every push -- using it made the canonical point at an ephemeral URL that no
+// longer matches the site a week later. VERCEL_PROJECT_PRODUCTION_URL is the
+// project's stable production domain and is set even in preview builds, so
+// previews canonicalise to production, which is what you want.
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
