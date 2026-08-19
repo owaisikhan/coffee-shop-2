@@ -208,6 +208,15 @@ export function CoffeeBeans() {
 
   useEffect(() => {
     if (!beans) return;
+    // Constant drifting, spinning decoration is exactly what a reduced-motion
+    // preference is asking us not to do, so leave the beans as static scenery
+    // (still draggable -- that motion is user-initiated, not ambient).
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      elRefs.current.forEach((el, i) => {
+        if (el) el.style.transform = `rotate(${beans[i].rotation}deg)`;
+      });
+      return;
+    }
 
     // offsetLeft/offsetTop are the untransformed layout position inside the
     // wrapper (which sits at document origin), so they double as document

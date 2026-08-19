@@ -1,13 +1,11 @@
+import { AmbientVideo } from "../ds/AmbientVideo";
+
 export function VideoBand() {
   return (
     <section style={{ position: "relative", height: "78vh", overflow: "hidden", background: "var(--espresso-900)" }}>
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
+      <AmbientVideo
         src="/uploads/kling_20260331_Image_to_Video_Cinematic__4482_0.mp4"
+        poster="/assets/poster-videoband.jpg"
         style={{
           position: "absolute",
           top: "50%",

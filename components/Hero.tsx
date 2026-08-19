@@ -43,6 +43,12 @@ export function Hero() {
   // client render identically and there is no hydration mismatch.
   useEffect(() => {
     const v0 = videoRef.current;
+    // Reduced motion: no scroll-scrubbing and no looping footage -- hold the
+    // first frame so the hero is a still image.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      v0?.pause();
+      return;
+    }
     if (window.matchMedia(MOBILE_QUERY).matches) {
       if (v0) {
         v0.loop = true;

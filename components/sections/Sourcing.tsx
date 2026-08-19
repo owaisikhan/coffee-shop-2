@@ -1,3 +1,4 @@
+import { AmbientVideo } from "../ds/AmbientVideo";
 import { Button } from "../ds/Button";
 
 export function Sourcing() {
@@ -50,13 +51,9 @@ export function Sourcing() {
           </Button>
         </div>
         <div style={{ position: "relative" }}>
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
+          <AmbientVideo
             src="/uploads/kling_20251120_Image_to_Video_Fresh_coff_923_0.mp4"
+            poster="/assets/poster-sourcing.jpg"
             style={{
               width: "100%",
               height: "clamp(280px, 46vw, 492px)",
