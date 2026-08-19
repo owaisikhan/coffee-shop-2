@@ -4,6 +4,22 @@ Newest first. Dates are when the work landed on `main`.
 
 ## Unreleased
 
+### Added
+- Every control on the page now does something. "Order Now" (hero and each
+  product card) opens a pickup-order dialog with size, quantity and a validated
+  name, and confirms with a summary; the card variant preselects its own drink.
+  The nav search searches the menu. "View Farm List" opens the nine farms with
+  origin, varietal and what was paid. "Explore Menu" and "Explore More" scroll
+  to their sections. The testimonial arrows cycle three quotes. The newsletter
+  validates the address, reports errors, and shows a success state.
+- Menu, featured drinks, farms and testimonials moved into `app/_lib/`, so the
+  price list, the cards and search all read one source instead of three copies.
+- Full metadata: `metadataBase`, Open Graph, Twitter card, canonical, keywords,
+  robots and `themeColor`, plus a generated `app/opengraph-image.png`. Links to
+  the site previewed as bare text before.
+- `next/image` for the product shots, story photo and avatar. The beans stay raw
+  `<img>` on purpose — they are transform-driven and already tiny.
+
 ### Changed
 - Reorganised into `app/_components/{ui,site}` and `app/_styles`, following the
   App Router private-folder convention. Added `docs/`, `scripts/`, `CLAUDE.md`,

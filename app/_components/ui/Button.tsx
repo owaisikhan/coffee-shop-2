@@ -40,6 +40,7 @@ export function Button({
   showIcon = true,
   disabled,
   onClick,
+  type = "button",
   style,
 }: {
   children: React.ReactNode;
@@ -49,6 +50,7 @@ export function Button({
   showIcon?: boolean;
   disabled?: boolean;
   onClick?: () => void;
+  type?: "button" | "submit";
   style?: React.CSSProperties;
 }) {
   const [hover, setHover] = useState(false);
@@ -56,7 +58,7 @@ export function Button({
   const sm = size === "sm";
   return (
     <button
-      type="button"
+      type={type}
       disabled={disabled}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}

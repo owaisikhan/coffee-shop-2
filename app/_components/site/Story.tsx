@@ -1,3 +1,5 @@
+"use client";
+
 import { PhotoFrame } from "../ui/PhotoFrame";
 import { Button } from "../ui/Button";
 
@@ -54,7 +56,11 @@ export function Story() {
             Everything On The Menu Starts With Coffee We Bought Directly From The Farm, At A Price We Are
             Happy To Print On The Bag.
           </p>
-          <Button variant="outline" style={{ minWidth: 160 }}>
+          <Button
+            variant="outline"
+            style={{ minWidth: 160 }}
+            onClick={() => document.getElementById("sourcing")?.scrollIntoView({ behavior: "smooth" })}
+          >
             Explore More
           </Button>
         </div>

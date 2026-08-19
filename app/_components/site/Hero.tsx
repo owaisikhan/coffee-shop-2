@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/Button";
+import { OrderDialog } from "./OrderDialog";
+import { SearchDialog } from "./SearchDialog";
 import { Icon } from "../ui/Icon";
 import { IconButton } from "../ui/IconButton";
 import { Logo } from "../ui/Logo";
@@ -19,6 +21,8 @@ const NAV_LINKS = [
 
 export function Hero() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
@@ -252,7 +256,7 @@ export function Hero() {
               <a href="#visit" style={{ fontSize: 13, color: "var(--cream-050)" }}>
                 Sign In
               </a>
-              <IconButton icon="search" label="Search" size={34} />
+              <IconButton icon="search" label="Search" size={34} onClick={() => setSearchOpen(true)} />
               <button
                 type="button"
                 className="hero-burger"
@@ -319,10 +323,14 @@ export function Hero() {
               Small Batches, Named Farms, And A Bar Where Someone Still Pulls Every Shot By Hand.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, pointerEvents: "auto", marginTop: 8 }}>
-              <Button variant="primary" style={{ minWidth: 150 }}>
+              <Button variant="primary" style={{ minWidth: 150 }} onClick={() => setOrderOpen(true)}>
                 Order Now
               </Button>
-              <Button variant="ghost" style={{ minWidth: 150 }}>
+              <Button
+                variant="ghost"
+                style={{ minWidth: 150 }}
+                onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
+              >
                 Explore Menu
               </Button>
             </div>
@@ -354,6 +362,9 @@ export function Hero() {
           </div>
         </div>
       </div>
+      <OrderDialog open={orderOpen} onClose={() => setOrderOpen(false)} />
+      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+
       {/* Slide-in menu. Fixed and above the beans (z-index 9999) so nothing
           floats over it. Panel is capped well short of full width. */}
       <div

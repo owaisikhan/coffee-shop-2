@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 export function ProductCard({
@@ -62,12 +63,15 @@ export function ProductCard({
               style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
             />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={image}
-              alt={name}
-              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
-            />
+            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1" }}>
+              <Image
+                src={image}
+                alt={name}
+                fill
+                sizes="(max-width: 700px) 90vw, 300px"
+                style={{ objectFit: "cover" }}
+              />
+            </div>
           )}
         </div>
         <h3

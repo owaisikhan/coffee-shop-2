@@ -8,8 +8,9 @@ static page that prerenders.
 
 ```
 app/
-  _components/ui/     design-system primitives (Button, Icon, ProductCard, …)
-  _components/site/   page sections (Hero, Story, BestSellers, Footer, …)
+  _components/ui/     design-system primitives (Button, Icon, Dialog, …)
+  _components/site/   page sections + the dialogs they own
+  _lib/               shared data (menu, farms, testimonials)
   _styles/            globals.css + tokens.css
   icon.png            file-based favicon (Next generates the <link> tags)
   layout.tsx page.tsx
@@ -54,6 +55,8 @@ Don't serve anything out of it.
   markup, so SSR and client render the same HTML.
 - **Beans intercept pointer events** so they can be dragged. A bean sitting over
   a button will swallow that click.
+- **Two `OrderDialog`s are mounted** (Hero and BestSellers). Field ids come from
+  `useId()` for that reason — do not hard-code them back.
 - Media is the dominant cost. Before adding a video, run
   `scripts/optimise-video.sh` and check the reported SSIM.
 

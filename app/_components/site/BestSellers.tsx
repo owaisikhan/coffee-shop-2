@@ -4,21 +4,15 @@ import { useState } from "react";
 import { SectionHeading } from "../ui/SectionHeading";
 import { FilterTabs } from "../ui/FilterTabs";
 import { ProductCard } from "../ui/ProductCard";
+import { OrderDialog } from "./OrderDialog";
+import { FEATURED } from "../../_lib/menu";
 
 const FILTERS = ["All", "Black", "Espresso", "Doppio"];
 
-const PRODUCTS = [
-  { name: "Cappuccino", image: "/assets/img-cappuccino.png", video: "/uploads/cappuccino-loop.mp4", cat: "Espresso" },
-  { name: "Americano", image: "/assets/img-americano.png", video: "/uploads/americano-loop.mp4", cat: "Black" },
-  { name: "Espresso", image: "/assets/img-espresso.png", video: "/uploads/espresso-loop.mp4", cat: "Doppio" },
-  { name: "Iced Latte", image: "/assets/img-iced-coffee.png", video: "/uploads/iced-latte-loop.mp4", cat: "Espresso" },
-  { name: "Batch Brew", image: "/assets/img-hero-cup.png", video: "/uploads/batch-brew-loop.mp4", cat: "Black" },
-  { name: "Latte", image: "/assets/img-latte-art.png", video: "/uploads/latte-loop.mp4", cat: "Espresso" },
-];
-
 export function BestSellers() {
   const [filter, setFilter] = useState("All");
-  const shown = filter === "All" ? PRODUCTS : PRODUCTS.filter((p) => p.cat === filter);
+  const [ordering, setOrdering] = useState<string | null>(null);
+  const shown = filter === "All" ? FEATURED : FEATURED.filter((p) => p.cat === filter);
 
   return (
     <section style={{ background: "var(--cream-100)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
@@ -48,11 +42,22 @@ export function BestSellers() {
         >
           {shown.map((p) => (
             <div key={p.name} className="product-card-hover">
-              <ProductCard name={p.name} image={p.image} video={p.video} width={300} />
+              <ProductCard
+                name={p.name}
+                image={p.image}
+                video={p.video}
+                width={300}
+                onAction={() => setOrdering(p.name)}
+              />
             </div>
           ))}
         </div>
       </div>
+      <OrderDialog
+        open={ordering !== null}
+        onClose={() => setOrdering(null)}
+        initialDrink={ordering ?? undefined}
+      />
     </section>
   );
 }

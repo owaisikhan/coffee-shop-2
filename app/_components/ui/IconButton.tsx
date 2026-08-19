@@ -11,6 +11,7 @@ export function IconButton({
   size = 40,
   label,
   onClick,
+  type = "button",
   style,
 }: {
   icon?: string;
@@ -18,6 +19,7 @@ export function IconButton({
   size?: number;
   label?: string;
   onClick?: () => void;
+  type?: "button" | "submit";
   style?: React.CSSProperties;
 }) {
   const [hover, setHover] = useState(false);
@@ -27,7 +29,7 @@ export function IconButton({
   const hoverBg = dark ? "var(--espresso-700)" : tan ? "var(--tan-500)" : "rgba(27,17,7,.08)";
   return (
     <button
-      type="button"
+      type={type}
       aria-label={label || icon}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}

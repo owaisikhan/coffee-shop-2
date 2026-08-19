@@ -1,20 +1,5 @@
 import { SectionHeading } from "../ui/SectionHeading";
-
-const ESPRESSO_BAR = [
-  { name: "Espresso", price: "3.00" },
-  { name: "Doppio", price: "3.60" },
-  { name: "Cappuccino", price: "4.20" },
-  { name: "Flat White", price: "4.40" },
-  { name: "Iced Latte", price: "4.80" },
-];
-
-const FILTER_AND_BEANS = [
-  { name: "Batch Brew", price: "3.40" },
-  { name: "Pour Over, Single Origin", price: "5.20" },
-  { name: "Cold Brew, On Tap", price: "4.60" },
-  { name: "Beans, 250g Bag", price: "16.00" },
-  { name: "Beans, 1kg Bag", price: "54.00" },
-];
+import { drinksInGroup } from "../../_lib/menu";
 
 function MenuColumn({ heading, items }: { heading: string; items: { name: string; price: string }[] }) {
   return (
@@ -74,8 +59,8 @@ export function Menu() {
           body="Espresso And Filter, Priced For A Cup You Drink Standing Up Or Sitting Down."
         />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))", gap: "clamp(40px, 6vw, 64px) clamp(32px, 6vw, 96px)" }}>
-          <MenuColumn heading="Espresso Bar" items={ESPRESSO_BAR} />
-          <MenuColumn heading="Filter And Beans" items={FILTER_AND_BEANS} />
+          <MenuColumn heading="Espresso Bar" items={drinksInGroup("Espresso Bar")} />
+          <MenuColumn heading="Filter And Beans" items={drinksInGroup("Filter And Beans")} />
         </div>
       </div>
     </section>

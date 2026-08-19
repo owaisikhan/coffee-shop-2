@@ -35,6 +35,7 @@
   --border-on-dark: var(--cream-100);
   --border-hairline: rgba(27, 17, 7, 0.18);
   --accent-star: var(--gold-400);
+  --danger: #9a3412;
 
   /* controls */
   --btn-primary-bg: var(--cream-050);

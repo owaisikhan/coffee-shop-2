@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import { AmbientVideo } from "../ui/AmbientVideo";
 import { Button } from "../ui/Button";
+import { FarmListDialog } from "./FarmListDialog";
 
 export function Sourcing() {
+  const [farmsOpen, setFarmsOpen] = useState(false);
   return (
     <section id="sourcing" style={{ background: "var(--tan-300)", padding: "clamp(56px, 9vw, 104px) clamp(20px, 5vw, 48px)" }}>
       <div
@@ -46,9 +51,10 @@ export function Sourcing() {
           <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--espresso-700)", maxWidth: 420, margin: 0 }}>
             The Bag Tells You The Farm, The Varietal, What We Paid, And The Week It Was Roasted.
           </p>
-          <Button variant="dark" style={{ minWidth: 180 }}>
+          <Button variant="dark" style={{ minWidth: 180 }} onClick={() => setFarmsOpen(true)}>
             View Farm List
           </Button>
+          <FarmListDialog open={farmsOpen} onClose={() => setFarmsOpen(false)} />
         </div>
         <div style={{ position: "relative" }}>
           <AmbientVideo

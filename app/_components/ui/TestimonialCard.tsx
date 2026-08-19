@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { StarRating } from "./StarRating";
 
 export function TestimonialCard({
@@ -18,10 +19,11 @@ export function TestimonialCard({
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: width, paddingTop: 44, ...style }}>
       {avatar && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={avatar}
           alt={name}
+          width={88}
+          height={88}
           style={{
             position: "absolute",
             top: 0,
