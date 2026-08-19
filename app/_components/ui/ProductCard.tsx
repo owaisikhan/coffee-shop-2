@@ -57,7 +57,10 @@ export function ProductCard({
               muted
               loop
               playsInline
-              preload="auto"
+              // The card sits well below the fold and only plays once scrolled
+              // into view, so preloading would download every product video on
+              // first paint -- 13.5MB across the six cards.
+              preload="none"
               poster={image}
               src={video}
               style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
