@@ -25,6 +25,11 @@ const MAX_SPIN = 1200; // deg/sec, keeps a hard knock from blurring into a whirl
 // this much separation speed, which knocks them into free mode so they actually
 // part instead of resting merged into one another.
 const MIN_SEPARATION_SPEED = 70; // px/sec
+// Touch-only: a tap that isn't a drag still kicks the bean, so poking one on a
+// phone sends it off rather than doing nothing until you drag.
+const TAP_SLOP = 10; // px of travel below which a touch counts as a tap, not a drag
+const TAP_MS = 400; // and it has to be quick -- a long press isn't a poke
+const TAP_KICK_SPEED = 820; // px/sec imparted by a tap
 
 type Bean = {
   topPercent: number;
@@ -63,6 +68,11 @@ type BeanState = {
   grabDX: number;
   grabDY: number;
   lastMoveT: number;
+  downT: number;
+  downPageX: number;
+  downPageY: number;
+  moved: number;
+  pointerIsTouch: boolean;
   // Ambient terms cached each frame so a bean that settles after a collision
   // can rejoin the drift exactly where it stopped.
   wanderX: number;
@@ -131,10 +141,12 @@ export function CoffeeBeans() {
   const elRefs = useRef<(HTMLImageElement | null)[]>([]);
   const stateRefs = useRef<BeanState[]>([]);
   const baseRefs = useRef<{ x: number; y: number }[]>([]);
+  const isNarrowRef = useRef(false);
 
   useEffect(() => {
     const rand = mulberry32(20260818);
     const narrow = window.innerWidth <= MOBILE_BREAKPOINT;
+    isNarrowRef.current = narrow;
     const count = narrow ? MOBILE_BEAN_COUNT : BEAN_COUNT;
     setSize(narrow ? MOBILE_BEAN_SIZE : BEAN_SIZE);
     const list: Bean[] = Array.from({ length: count }, (_, i) => {
@@ -181,6 +193,11 @@ export function CoffeeBeans() {
       grabDX: 0,
       grabDY: 0,
       lastMoveT: 0,
+      downT: 0,
+      downPageX: 0,
+      downPageY: 0,
+      moved: 0,
+      pointerIsTouch: false,
       wanderX: 0,
       wanderY: 0,
       drift: 0,
@@ -404,6 +421,11 @@ export function CoffeeBeans() {
     const match = /rotate\(([-0-9.]+)deg\)/.exec(el.style.transform);
     s.rot = match ? parseFloat(match[1]) : 0;
     s.lastMoveT = performance.now();
+    s.downT = s.lastMoveT;
+    s.downPageX = e.pageX;
+    s.downPageY = e.pageY;
+    s.moved = 0;
+    s.pointerIsTouch = e.pointerType === "touch";
     s.mode = "drag";
   };
 
@@ -431,6 +453,7 @@ export function CoffeeBeans() {
     s.vx = (s.docX - prevX) / dt;
     s.vy = (s.docY - prevY) / dt;
     s.rot += ((s.docX - prevX) * 0.6) % 360;
+    s.moved = Math.hypot(e.pageX - s.downPageX, e.pageY - s.downPageY);
   };
 
   const endDrag = (i: number) => (e: React.PointerEvent<HTMLImageElement>) => {
@@ -438,6 +461,33 @@ export function CoffeeBeans() {
     const s = stateRefs.current[i];
     if (!el || !s || s.mode !== "drag") return;
     if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+
+    // A tap on a touch screen (no real drag) still sends the bean moving,
+    // pushed away from wherever the finger landed on it -- poke the left edge
+    // and it heads right. Touch-only, so a desktop click stays inert, and it
+    // just seeds a velocity: the existing free-flight physics does the rest.
+    if (isNarrowRef.current && s.pointerIsTouch && s.moved < TAP_SLOP && performance.now() - s.downT < TAP_MS) {
+      let kx = s.grabDX - s.w / 2;
+      let ky = s.grabDY - s.h / 2;
+      let mag = Math.hypot(kx, ky);
+      if (mag < 4) {
+        // Tapped dead centre, so there's no direction to infer -- send it along
+        // the way it was already drifting.
+        kx = s.vx;
+        ky = s.vy;
+        mag = Math.hypot(kx, ky);
+      }
+      if (mag < 1) {
+        kx = 0;
+        ky = -1;
+        mag = 1;
+      }
+      s.vx = (-kx / mag) * TAP_KICK_SPEED;
+      s.vy = (-ky / mag) * TAP_KICK_SPEED;
+      s.rotVel = clampSpin(s.vx * 1.2);
+      s.mode = "free";
+      return;
+    }
 
     // A stale velocity from a pointer that paused before releasing shouldn't
     // fling the bean, so drop it if the last move was a while ago.
