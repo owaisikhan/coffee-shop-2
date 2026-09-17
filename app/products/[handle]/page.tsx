@@ -17,10 +17,12 @@ const PRODUCT_QUERY = `
 export default async function ProductPage({
   params,
 }: {
-  params: { handle: string };
+  params: Promise<{ handle: string }>;
 }) {
+  const { handle } = await params;
+
   const { data } = await shopifyClient.request(PRODUCT_QUERY, {
-    variables: { handle: params.handle },
+    variables: { handle },
   });
   const product = data.product;
   const firstVariant = product.variants.nodes[0];
